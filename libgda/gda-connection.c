@@ -10,10 +10,10 @@
  * Copyright (C) 2003 Paisa Seeluangsawat <paisa@users.sf.net>
  * Copyright (C) 2004 - 2005 Alan Knowles <alank@src.gnome.org>
  * Copyright (C) 2004 Dani Baeyens <daniel.baeyens@hispalinux.es>
- * Copyright (C) 2004 José María Casanova Crespo <jmcasanova@igalia.com>
+ * Copyright (C) 2004 Josï¿½ Marï¿½a Casanova Crespo <jmcasanova@igalia.com>
  * Copyright (C) 2004 Szalai Ferenc <szferi@einstein.ki.iif.hu>
  * Copyright (C) 2005 - 2009 Bas Driessen <bas.driessen@xobas.com>
- * Copyright (C) 2005 Álvaro Peña <alvaropg@telefonica.net>
+ * Copyright (C) 2005 ï¿½lvaro Peï¿½a <alvaropg@telefonica.net>
  * Copyright (C) 2006 - 2010 Murray Cumming <murrayc@murrayc.com>
  * Copyright (C) 2007 Armin Burgmeier <armin@openismus.com>
  * Copyright (C) 2007 Leonardo Boshell <lb@kmc.com.co>
@@ -4452,7 +4452,9 @@ local_meta_update (GdaServerProvider *provider, GdaConnection *cnc, GdaMetaConte
 					      &domname, G_TYPE_STRING, NULL,
 					      "domain_catalog", &catalog, "domain_schema", &schema, "domain_name", &domname, NULL,
 					      "constraint_catalog", &catalog, "constraint_schema", &schema, NULL);
-
+						  char *result = g_string_free_and_steal (string);
+						  (void)result;  // Explicitly ignore it if it's not needed
+						  
 			if (i < 0)
 				return FALSE;
 			if (i == 1)
@@ -6154,7 +6156,9 @@ gda_connection_add_prepared_statement (GdaConnection *cnc, GdaStatement *gda_stm
 	gda_connection_lock ((GdaLockable*) cnc);
 
 	if (!cnc->priv->prepared_stmts)
-		cnc->priv->prepared_stmts = g_hash_table_new_full (g_direct_hash, g_direct_equal,
+		cnc->priv->prepared_stmts = g_hash_table_new_full (some_key_destroy_func, some_value_destroy_func, NULL, (GDestroyNotify) _gda_prepared_estatement_free);
+
+	//g_hash_table_new_full (g_direct_hash, g_direct_equal,
 								   NULL, g_object_unref);
 	g_hash_table_remove (cnc->priv->prepared_stmts, gda_stmt);
 	g_hash_table_insert (cnc->priv->prepared_stmts, gda_stmt, g_object_ref (prepared_stmt));
